@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Guru{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold">Dashboard Guru</h1>
+            <p class="text-gray-600">{{ hari_ini_indonesian }}, {{ today|date:"d F Y" }}</p>
+        </div>
+        <div class="text-right">
+            <p class="text-gray-600">Selamat datang, <span class="font-semibold">{{ request.user.first_name }}</span>!</p>
+            <a href="{% url 'logout' %}" class="text-blue-500 hover:text-blue-700">Logout</a>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-2xl font-bold mb-4">Jadwal Mengajar Hari Ini</h2>
+        <ul class="list-disc list-inside">
+            {% for jadwal in jadwal_hari_ini %}
+                <li class="text-lg mb-2">
+                    <a href="#" class="text-blue-500 hover:text-blue-700" onclick="openModal({{ jadwal.id }})">{{ jadwal.judul }} - {{ jadwal.ruangan.nama_ruangan }}</a>
+                    <span class="text-gray-600">({{ jadwal.jam_mulai|time:"H:i" }} - {{ jadwal.jam_selesai|time:"H:i" }})</span>
+                </li>
+            {% empty %}
+                <li class="text-gray-500">Tidak ada jadwal mengajar hari ini.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="text-center mb-8">
+        <a href="{% url 'semua-jadwal' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Lihat Semua Jadwal
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+            <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                <h2 class="text-2xl font-bold mb-4">Buat Ruangan Baru</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ ruangan_form.as_p }}
+                    <button type="submit" name="create_ruangan" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4">
+                        Buat Ruangan
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Buat Jadwal & Materi Baru</h2>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ jadwal_materi_form.ruangan.label_tag }}
+                    {{ jadwal_materi_form.ruangan }}
+                    {{ jadwal_materi_form.tanggal.label_tag }}
+                    {{ jadwal_materi_form.tanggal }}
+                    <div class="mb-4">
+                        <label for="id_hari_display" class="block text-gray-700 text-sm font-bold mb-2">Hari</label>
+                        <input type="text" id="id_hari_display" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" readonly>
+                    </div>
+                    {{ jadwal_materi_form.jam_mulai.label_tag }}
+                    {{ jadwal_materi_form.jam_mulai }}
+                    {{ jadwal_materi_form.jam_selesai.label_tag }}
+                    {{ jadwal_materi_form.jam_selesai }}
+                    {{ jadwal_materi_form.judul.label_tag }}
+                    {{ jadwal_materi_form.judul }}
+                    {{ jadwal_materi_form.deskripsi.label_tag }}
+                    {{ jadwal_materi_form.deskripsi }}
+                    {{ jadwal_materi_form.file.label_tag }}
+                    {{ jadwal_materi_form.file }}
+                    <button type="submit" name="create_jadwal_materi" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4">
+                        Buat Jadwal & Materi
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Ruangan yang Anda Ajar</h2>
+        {% for data in ruangan_diajar_data %}
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h3 class="text-xl font-bold mb-2">{{ data.ruangan.nama_ruangan }}</h3>
+                
+                <h4 class="text-lg font-semibold mt-4 mb-2">Jadwal</h4>
+                {% if data.jadwal_list %}
+                    <ul class="list-disc list-inside ml-4">
+                        {% for jadwal in data.jadwal_list %}
+                            <li>{{ jadwal.get_hari_display }} ({{ jadwal.tanggal|date:"d F Y" }}) {{ jadwal.jam_mulai|time:"H:i" }} - {{ jadwal.jam_selesai|time:"H:i" }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Tidak ada jadwal untuk ruangan ini.</p>
+                {% endif %}
+
+                <h4 class="text-lg font-semibold mt-4 mb-2">Materi</h4>
+                {% if data.materi_list %}
+                    <ul class="list-disc list-inside ml-4">
+                        {% for materi in data.materi_list %}
+                            <li><a href="{{ materi.file.url }}" download class="text-blue-500 hover:text-blue-700">{{ materi.judul }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Tidak ada materi untuk ruangan ini.</p>
+                {% endif %}
+
+                <h4 class="text-lg font-semibold mt-4 mb-2">Tambah Murid ke Ruangan Ini</h4>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="ruangan_id" value="{{ data.ruangan.id }}">
+                    {{ data.add_siswa_to_room_form.siswa.label_tag }}
+                    {{ data.add_siswa_to_room_form.siswa }}
+                    <button type="submit" name="add_siswa_to_room" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2">
+                        Tambah Murid
+                    </button>
+                </form>
+            </div>
+        {% empty %}
+            <p>Anda belum mengajar ruangan apapun.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="jadwalModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Jadwal Detail
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500" id="modal-content">
+                                <!-- Schedule details will be loaded here -->
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm" onclick="closeModal()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tanggalInput = document.getElementById('id_tanggal');
+        const hariInput = document.getElementById('id_hari_display');
+
+        function updateHari() {
+            if (tanggalInput.value) {
+                const selectedDate = new Date(tanggalInput.value);
+                const days = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+                hariInput.value = days[selectedDate.getDay()];
+            } else {
+                hariInput.value = '';
+            }
+        }
+
+        tanggalInput.addEventListener('change', updateHari);
+        // Initial update in case a date is pre-filled (e.g., due to form error)
+        updateHari();
+    });
+
+    function openModal(jadwalId) {
+        fetch(`/api/jadwal/${jadwalId}/`)
+            .then(response => response.json())
+            .then(data => {
+                const modalContent = document.getElementById('modal-content');
+                let materiHtml = '<ul>';
+                data.materi.forEach(materi => {
+                    materiHtml += `<li><a href="${materi.file_url}" download>${materi.judul}</a></li>`;
+                });
+                materiHtml += '</ul>';
+
+                modalContent.innerHTML = `
+                    <p><strong>Ruangan:</strong> ${data.ruangan}</p>
+                    <p><strong>Hari:</strong> ${data.hari}</p>
+                    <p><strong>Tanggal:</strong> ${data.tanggal}</p>
+                    <p><strong>Jam:</strong> ${data.jam_mulai} - ${data.jam_selesai}</p>
+                    <p><strong>Materi:</strong></p>
+                    ${materiHtml}
+                `;
+                document.getElementById('jadwalModal').classList.remove('hidden');
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('jadwalModal').classList.add('hidden');
+    }
+</script>
+{% endblock %}
+{% endblock %}

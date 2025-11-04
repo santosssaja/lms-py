@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrasi LMS{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-lg">
+        <h1 class="text-2xl font-bold mb-6 text-center">Buat Akun Baru</h1>
+        <form method="POST" novalidate>
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="{{ form.username.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                    <p class="text-red-500 text-xs italic">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.first_name.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Nama Depan</label>
+                {{ form.first_name }}
+                {% for error in form.first_name.errors %}
+                    <p class="text-red-500 text-xs italic">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.last_name.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Nama Belakang</label>
+                {{ form.last_name }}
+                {% for error in form.last_name.errors %}
+                    <p class="text-red-500 text-xs italic">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.email.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                    <p class="text-red-500 text-xs italic">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.password1.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                {{ form.password1 }}
+                {% for error in form.password1.errors %}
+                    <p class="text-red-500 text-xs italic">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <div class="mb-4">
+                <label for="{{ form.password2.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Konfirmasi Password</label>
+                {{ form.password2 }}
+                {% for error in form.password2.errors %}
+                    <p class="text-red-500 text-xs italic">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Peran</label>
+                {{ form.role }}
+                {% for error in form.role.errors %}
+                    <p class="text-red-500 text-xs italic">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% for error in form.non_field_errors %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                    <strong class="font-bold">Error!</strong>
+                    <span class="block sm:inline">{{ error }}</span>
+                </div>
+            {% endfor %}
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4">
+                Daftar
+            </button>
+        </form>
+        <p class="mt-4 text-center">Sudah punya akun? <a class="font-bold text-sm text-blue-500 hover:text-blue-800" href="{% url 'login' %}">Login di sini</a>.</p>
+    </div>
+</div>
+{% endblock %}

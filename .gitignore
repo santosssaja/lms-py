@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.Python
+
+# Distributions and packaging
+.eggs/
+*.egg
+build/
+dist/
+
+# Environments
+.env
+.venv
+env/
+virtualenv/
+virtualenvs/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Django specific
+*.log
+*.pot
+*.mo
+db.sqlite3
+media/
+staticfiles/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# My custom ignores

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil Saya{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold mb-6">Profil Saya</h1>
+        <div class="mb-4">
+            <p class="text-lg"><span class="font-semibold">Username:</span> {{ request.user.username }}</p>
+            <p class="text-lg"><span class="font-semibold">Nama:</span> {{ request.user.first_name }} {{ request.user.last_name }}</p>
+            <p class="text-lg"><span class="font-semibold">Email:</span> {{ request.user.email }}</p>
+            <p class="text-lg"><span class="font-semibold">Peran:</span> {{ request.user.profile.get_role_display }}</p>
+        </div>
+
+        <h2 class="text-2xl font-bold mb-4">Ruangan Saya</h2>
+        <ul class="list-disc list-inside">
+            {% for ruangan in ruangan_list %}
+                <li class="text-lg mb-2">{{ ruangan.nama_ruangan }}</li>
+            {% empty %}
+                <li class="text-gray-500">Anda belum terdaftar di ruangan manapun.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
