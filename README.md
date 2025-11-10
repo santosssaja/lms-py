@@ -36,7 +36,7 @@ LMS Proyek adalah Sistem Manajemen Pembelajaran (LMS) sederhana yang dibangun me
 1.  **Clone repositori:**
     ```bash
     git clone https://github.com/santosssaja/lms-py
-    cd lms_proyek
+    cd lms-py
     ```
 
 2.  **Buat dan aktifkan virtual environment:**
